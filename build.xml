@@ -1,0 +1,91 @@
+<?xml version="1.0" ?>
+<project name="SimpleWebApp" default="deploywar">
+	<property file="build.properties" />
+	<property name="url" value="http://localhost:8083/manager/text"/>
+	<property name="username" value="admin" />
+	<property name="password" value="admin" />
+
+	<path id="catalina-ant-classpath">
+
+		<fileset dir="${appserver.lib}">
+			<include name="catalina-ant.jar" />
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${appserver.home}/bin">
+			<include name="tomcat-juli.jar" />
+			<include name="bootstrap.jar" />
+		</fileset>
+	</path>
+
+
+
+	<taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+	<taskdef name="reload" classname="org.apache.catalina.ant.ReloadTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+	<taskdef name="list" classname="org.apache.catalina.ant.ListTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+	<taskdef name="start" classname="org.apache.catalina.ant.StartTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+	<taskdef name="stop" classname="org.apache.catalina.ant.StopTask">
+		<classpath refid="catalina-ant-classpath" />
+	</taskdef>
+
+
+
+
+
+
+
+	<target name="clean">
+		<delete dir="dist" />
+		<delete dir="build" />
+	</target>
+
+	<target name="init" depends="clean">
+		<mkdir dir="build/classes" />
+		<mkdir dir="dist" />
+	</target>
+
+
+
+
+	<path id="compile.classpath">
+		<fileset dir="WebContent/WEB-INF/lib">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+
+	<target name="compile" depends="init">
+		<javac destdir="build/classes" debug="true" srcdir="src">
+			<classpath refid="compile.classpath" />
+		</javac>
+	</target>
+
+	<target name="war" depends="compile">
+		<war destfile="dist/SimpleWebApp.war" webxml="WebContent/WEB-INF/web.xml">
+			<fileset dir="WebContent" />
+			<lib dir="WebContent/WEB-INF/lib" />
+			<classes dir="build/classes" />
+		</war>
+	</target>
+
+
+
+
+
+
+	<target name="deploywar" depends="war" description="Deploy application as a WAR file">
+		 <deploy url="${url}" username="${username}" password="${password}" path="/SimpleWebApp" war="dist/SimpleWebApp.war" />
+	</target>
+
+	<target name="reload" description="Reload application in Tomcat">
+		<reload url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${name}" />
+	</target>
+
+</project>
